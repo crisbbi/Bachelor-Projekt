@@ -1,15 +1,38 @@
+let angle = 0;
+let counter = 1;
+
 function setup() {
   createCanvas(100, 100, WEBGL);
+  // use an angle of degrees, otherwise need to use radians with radians(degrees) for conversion
+  angleMode(DEGREES);
 }
 
 function draw() {
   background(200);
-  rotateX(frameCount * 0.01);
-  rotateY(frameCount * 0.01);
+
+  // simulate data received as string from ajax, parse back to usable number
+  angle = str(counter++);
+
+  // angle as new rotation position
+  rotateX(parseInt(angle));
   box(50);
 
+  // if angle greater than 360 degrees then reset to 0, just cosmetic effect yet, might just be for visible correctness...
+  if(angle <= 359){
+    angle++;
+  } else {
+    angle = 0;
+    counter = 1;
+  }
+
+  // just to document angle change visible as text
+  document.getElementById("title1").innerHTML = angle;
+
+  /* code below commented out as no connection to pi available 
+  ----------------------------------------------------------- */
+
   // AJAX request
-  var xhr = new XMLHttpRequest();
+  /* var xhr = new XMLHttpRequest();
   xhr.open('GET', "https://iybzjdzs.p55.rt3.io/", true);
   xhr.send();
   
@@ -20,5 +43,5 @@ function draw() {
       document.getElementById("title2").innerHTML = data[1];
       document.getElementById("title3").innerHTML = data[2];
     }
-  };
+  }; */
 }
