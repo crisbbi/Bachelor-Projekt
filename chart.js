@@ -1,11 +1,16 @@
 var canvas = document.getElementById("chartCanvas");
 
+// set up labels for Chart object to use
 var labelArray = [];
 for (index = 1; index <= 20; index++) {
   labelArray.push("1");
 }
 var sensorDataGyroX = [];
 var sensorDataGyroY = [];
+
+// initial y axis range values, will change with incoming data
+var lowestNumber = 0;
+var highestNumber = 1;
 
 var sensorChart = new Chart(canvas, {
   type: "line",
@@ -27,6 +32,14 @@ var sensorChart = new Chart(canvas, {
     ]
   },
   options: {
+      scales: {
+          yAxes: [{
+              ticks: {
+                  suggestedMin: lowestNumber,
+                  suggestedMax: highestNumber
+              }
+          }]
+      },
     elements: {
         line: {
             tension: 0, // disables bezier curves
@@ -57,10 +70,18 @@ function refreshGyroYWitNewData(newData) {
   sensorChart.update();
 }
 
+function checkLowestNumber(newestData, currentDataArray){
+    lowestNumber = Math.min(newestData, Math.min(currentDataArray), 0);
+}
+
+function checkHighestNumber(newestData, currentDataArray){
+    highestNumber = Math.max(newestData, Math.max(currentDataArray), 0);
+}
+
 function getData(){
     // AJAX request
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://afcprhyc.p51.rt3.io/", true);
+    xhr.open("GET", "https://cgqzqedj.p55.rt3.io/", true);
     xhr.send();
     
       xhr.onreadystatechange = function() {
@@ -72,6 +93,8 @@ function getData(){
           if (sensorDataGyroX.length <= 20) {
             sensorDataGyroX.push(data[0]);
             sensorDataGyroY.push(data[1]);
+            checkHighestNumber(data[0]);
+            checkLowestNumber(data[1]);
             sensorChart.update();
           } else {
             refreshGyroXWitNewData(data[1]);
