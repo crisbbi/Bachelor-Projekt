@@ -97,7 +97,7 @@ function getData(){
             checkLowestNumber(data[1]);
             sensorChart.update();
           } else {
-            refreshGyroXWitNewData(data[1]);
+            refreshGyroXWitNewData(data[0]);
             refreshGyroYWitNewData(data[1]);
           }
         }
