@@ -65,6 +65,10 @@ function refreshSensorDataArray(arrayToRefresh, newMeasurement) {
   sensorChart.update();
 }
 
+function addDataToArray(arrayToFill, newMeasurement) {
+    arrayToFill.push(newMeasurement);
+}
+
 function getData(){
     // AJAX request
     var xhr = new XMLHttpRequest();
@@ -77,8 +81,8 @@ function getData(){
             document.getElementById("title1").innerHTML = data[0];
             document.getElementById("title2").innerHTML = data[1];
             if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
-                sensorDataGyroX.push(data[0]);
-                sensorDataGyroY.push(data[1]);
+                addDataToArray(sensorDataGyroX, data[0]);
+                addDataToArray(sensorDataGyroY, data[1]);
             } else {
                 refreshSensorDataArray(sensorDataGyroX, data[0]);
                 refreshSensorDataArray(sensorDataGyroY, data[1]);
