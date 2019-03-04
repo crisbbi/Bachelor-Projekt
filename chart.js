@@ -2,7 +2,8 @@ var canvas = document.getElementById("chartCanvas");
 
 // set up labels for Chart object to use
 var labelArray = [];
-for (index = 1; index <= 20; index++) {
+var maxAmountOfMeasurements = 40;
+for (index = 1; index <= maxAmountOfMeasurements; index++) {
   labelArray.push("1");
 }
 var sensorDataGyroX = [];
@@ -90,7 +91,7 @@ function getData(){
           document.getElementById("title1").innerHTML = data[0];
           document.getElementById("title2").innerHTML = data[1];
     
-          if (sensorDataGyroX.length <= 20) {
+          if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
             sensorDataGyroX.push(data[0]);
             sensorDataGyroY.push(data[1]);
             checkHighestNumber(data[0]);
