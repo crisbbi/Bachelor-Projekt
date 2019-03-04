@@ -11,8 +11,8 @@ var sensorDataGyroX = [];
 var sensorDataGyroY = [];
 
 // initial y axis range values, will change with incoming data
-var lowestNumber = 0;
-var highestNumber = 1;
+var lowestYaxisValue = 0;
+var highestYaxisValue = 1;
 
 var sensorChart = new Chart(canvas, {
     type: "line",
@@ -37,8 +37,8 @@ var sensorChart = new Chart(canvas, {
         scales: {
             yAxes: [{
                 ticks: {
-                    suggestedMin: lowestNumber,
-                    suggestedMax: highestNumber
+                    suggestedMin: lowestYaxisValue,
+                    suggestedMax: highestYaxisValue
                 }
             }]
         },
@@ -65,14 +65,6 @@ function refreshSensorDataArray(arrayToRefresh, newMeasurement) {
   sensorChart.update();
 }
 
-function checkLowestNumber(newMeasurement, currentDataArray){
-    lowestNumber = Math.min(newMeasurement, Math.min(currentDataArray), 0);
-}
-
-function checkHighestNumber(newMeasurement, currentDataArray){
-    highestNumber = Math.max(newMeasurement, Math.max(currentDataArray), 0);
-}
-
 function getData(){
     // AJAX request
     var xhr = new XMLHttpRequest();
@@ -84,13 +76,9 @@ function getData(){
             // write normal text on webpage for debugging
             document.getElementById("title1").innerHTML = data[0];
             document.getElementById("title2").innerHTML = data[1];
-    
             if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
                 sensorDataGyroX.push(data[0]);
                 sensorDataGyroY.push(data[1]);
-                checkHighestNumber(data[0]);
-                checkLowestNumber(data[1]);
-                sensorChart.update();
             } else {
                 refreshSensorDataArray(sensorDataGyroX, data[0]);
                 refreshSensorDataArray(sensorDataGyroY, data[1]);
@@ -99,8 +87,15 @@ function getData(){
     };
 }
 
+function updateChart() {
+    lowestYaxisValue = Math.min(data[0], data[1], Math.min(currentDataArray), 0);
+    highestYaxisValue = Math.max(data[0], data[1], Math.max(currentDataArray), 0);
+    sensorChart.update();
+}
+
 // refresh ajax call and chart update all X milliseconds
 setInterval(function() {
     getData();
+    updateChart();
     }, 
     35);
