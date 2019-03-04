@@ -6,6 +6,7 @@ var maxAmountOfMeasurements = 40;
 for (index = 1; index <= maxAmountOfMeasurements; index++) {
   labelArray.push("1");
 }
+
 var sensorDataGyroX = [];
 var sensorDataGyroY = [];
 
@@ -14,33 +15,33 @@ var lowestNumber = 0;
 var highestNumber = 1;
 
 var sensorChart = new Chart(canvas, {
-  type: "line",
-  data: {
+    type: "line",
+    data: {
     labels: labelArray,
     datasets: [
-      {
-        label: "Gyro Sensor X",
-        borderColor: "rgba(0, 128, 128, 1)",
-        backgroundColor: "rgba(0,0,0,0)",
-        data: sensorDataGyroX
-      },
-      {
-        label: "Gyro Sensor Y",
-        borderColor: "rgba(200, 128, 100, 1)",
-        backgroundColor: "rgba(0,0,0,0)",
-        data: sensorDataGyroY
-      }
+        {
+            label: "Gyro Sensor X",
+            borderColor: "rgba(0, 128, 128, 1)",
+            backgroundColor: "rgba(0,0,0,0)",
+            data: sensorDataGyroX
+        },
+        {
+            label: "Gyro Sensor Y",
+            borderColor: "rgba(200, 128, 100, 1)",
+            backgroundColor: "rgba(0,0,0,0)",
+            data: sensorDataGyroY
+        }
     ]
-  },
-  options: {
-      scales: {
-          yAxes: [{
-              ticks: {
-                  suggestedMin: lowestNumber,
-                  suggestedMax: highestNumber
-              }
-          }]
-      },
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    suggestedMin: lowestNumber,
+                    suggestedMax: highestNumber
+                }
+            }]
+        },
     elements: {
         line: {
             tension: 0, // disables bezier curves
@@ -53,7 +54,7 @@ var sensorChart = new Chart(canvas, {
         animationDuration: 0,
     },
     responsiveAnimationDuration: 0,
-}
+    }
 });
 
 function refreshGyroXWitNewMeasurement(newMeasurement) {
@@ -63,6 +64,7 @@ function refreshGyroXWitNewMeasurement(newMeasurement) {
   sensorChart.data.labels.push("1");
   sensorChart.update();
 }
+
 function refreshGyroYWitNewMeasurement(newMeasurement) {
   sensorDataGyroY.shift();
   sensorDataGyroY.push(newMeasurement);
@@ -84,25 +86,25 @@ function getData(){
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "https://cgqzqedj.p55.rt3.io/", true);
     xhr.send();
-    
-      xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
-          var data = xhr.responseText.split(",");
-          document.getElementById("title1").innerHTML = data[0];
-          document.getElementById("title2").innerHTML = data[1];
+            var data = xhr.responseText.split(",");
+            // write normal text on webpage for debugging
+            document.getElementById("title1").innerHTML = data[0];
+            document.getElementById("title2").innerHTML = data[1];
     
-          if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
-            sensorDataGyroX.push(data[0]);
-            sensorDataGyroY.push(data[1]);
-            checkHighestNumber(data[0]);
-            checkLowestNumber(data[1]);
-            sensorChart.update();
-          } else {
-            refreshGyroXWitNewMeasurement(data[0]);
-            refreshGyroYWitNewMeasurement(data[1]);
-          }
+            if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
+                sensorDataGyroX.push(data[0]);
+                sensorDataGyroY.push(data[1]);
+                checkHighestNumber(data[0]);
+                checkLowestNumber(data[1]);
+                sensorChart.update();
+            } else {
+                refreshGyroXWitNewMeasurement(data[0]);
+                refreshGyroYWitNewMeasurement(data[1]);
+            }
         }
-      };
+    };
 }
 
 // refresh ajax call and chart update all X milliseconds
