@@ -5,6 +5,7 @@ for (index = 1; index <= 20; index++) {
   labelArray.push("1");
 }
 var sensorDataGyroX = [];
+var sensorDataGyroY = [];
 
 var sensorChart = new Chart(canvas, {
   type: "line",
@@ -14,26 +15,43 @@ var sensorChart = new Chart(canvas, {
       {
         label: "Gyro Sensor X",
         borderColor: "rgba(0, 128, 128, 1)",
+        backgroundColor: "rgba(0,0,0,0)",
         data: sensorDataGyroX
+      },
+      {
+        label: "Gyro Sensor Y",
+        borderColor: "rgba(200, 128, 100, 1)",
+        backgroundColor: "rgba(0,0,0,0)",
+        data: sensorDataGyroY
       }
     ]
   },
   options: {
-    scales: {
-      yAxes: [
-        {
-          ticks: {
-            beginAtZero: true
-          }
+    elements: {
+        line: {
+            tension: 0, // disables bezier curves
         }
-      ]
-    }
-  }
+    },
+    animation: {
+        duration: 0,
+    },
+    hover: {
+        animationDuration: 0,
+    },
+    responsiveAnimationDuration: 0,
+}
 });
 
-function refreshWitNewData(newData) {
+function refreshGyroXWitNewData(newData) {
   sensorDataGyroX.shift();
   sensorDataGyroX.push(newData);
+  sensorChart.data.labels.shift();
+  sensorChart.data.labels.push("1");
+  sensorChart.update();
+}
+function refreshGyroYWitNewData(newData) {
+  sensorDataGyroY.shift();
+  sensorDataGyroY.push(newData);
   sensorChart.data.labels.shift();
   sensorChart.data.labels.push("1");
   sensorChart.update();
@@ -53,11 +71,15 @@ function getData(){
     
           if (sensorDataGyroX.length <= 20) {
             sensorDataGyroX.push(data[0]);
+            sensorDataGyroY.push(data[1]);
+            sensorChart.update();
           } else {
-            refreshWitNewData(data[0]);
+            refreshGyroXWitNewData(data[1]);
+            refreshGyroYWitNewData(data[1]);
           }
         }
       };
 }
 
-setInterval(getData, 1000);
+// refresh ajax call and chart update all X milliseconds
+setInterval(getData, 35);
