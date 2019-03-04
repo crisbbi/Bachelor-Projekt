@@ -56,27 +56,27 @@ var sensorChart = new Chart(canvas, {
 }
 });
 
-function refreshGyroXWitNewData(newData) {
+function refreshGyroXWitNewMeasurement(newMeasurement) {
   sensorDataGyroX.shift();
-  sensorDataGyroX.push(newData);
+  sensorDataGyroX.push(newMeasurement);
   sensorChart.data.labels.shift();
   sensorChart.data.labels.push("1");
   sensorChart.update();
 }
-function refreshGyroYWitNewData(newData) {
+function refreshGyroYWitNewMeasurement(newMeasurement) {
   sensorDataGyroY.shift();
-  sensorDataGyroY.push(newData);
+  sensorDataGyroY.push(newMeasurement);
   sensorChart.data.labels.shift();
   sensorChart.data.labels.push("1");
   sensorChart.update();
 }
 
-function checkLowestNumber(newestData, currentDataArray){
-    lowestNumber = Math.min(newestData, Math.min(currentDataArray), 0);
+function checkLowestNumber(newMeasurement, currentDataArray){
+    lowestNumber = Math.min(newMeasurement, Math.min(currentDataArray), 0);
 }
 
-function checkHighestNumber(newestData, currentDataArray){
-    highestNumber = Math.max(newestData, Math.max(currentDataArray), 0);
+function checkHighestNumber(newMeasurement, currentDataArray){
+    highestNumber = Math.max(newMeasurement, Math.max(currentDataArray), 0);
 }
 
 function getData(){
@@ -98,8 +98,8 @@ function getData(){
             checkLowestNumber(data[1]);
             sensorChart.update();
           } else {
-            refreshGyroXWitNewData(data[0]);
-            refreshGyroYWitNewData(data[1]);
+            refreshGyroXWitNewMeasurement(data[0]);
+            refreshGyroYWitNewMeasurement(data[1]);
           }
         }
       };
