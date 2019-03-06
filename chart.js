@@ -7,8 +7,12 @@ for (index = 1; index <= maxAmountOfMeasurements; index++) {
   labelArray.push("1");
 }
 
+// arrays to store sensor data
 var sensorDataGyroX = [];
 var sensorDataGyroY = [];
+var accelerometerXangle = [];
+var accelerometerYangle = [];
+var accelerometerZangle = [];
 
 // initial y axis range values, will change with incoming data
 var lowestYaxisValue = 0;
@@ -21,15 +25,33 @@ var sensorChart = new Chart(canvas, {
     datasets: [
         {
             label: "Gyro Sensor X",
-            borderColor: "rgba(0, 128, 128, 1)",
+            borderColor: "rgba(81, 205, 184, 1)",
             backgroundColor: "rgba(0,0,0,0)",
             data: sensorDataGyroX
         },
         {
             label: "Gyro Sensor Y",
-            borderColor: "rgba(200, 128, 100, 1)",
+            borderColor: "rgba(127, 28, 16, 1)",
             backgroundColor: "rgba(0,0,0,0)",
             data: sensorDataGyroY
+        },
+        {
+            label: "Accelerometer X Angle",
+            borderColor: "rgba(7, 46, 166, 1)",
+            backgroundColor: "rgba(0,0,0,0)",
+            data: accelerometerXangle
+        },
+        {
+            label: "Accelerometer Y Angle",
+            borderColor: "rgba(175, 62, 233, 1)",
+            backgroundColor: "rgba(0,0,0,0)",
+            data: accelerometerYangle
+        },
+        {
+            label: "Accelerometer Z Angle",
+            borderColor: "rgba(195, 112, 145, 1)",
+            backgroundColor: "rgba(0,0,0,0)",
+            data: accelerometerZangle
         }
     ]
     },
@@ -72,7 +94,7 @@ function addDataToArray(arrayToFill, newMeasurement) {
 function getData(){
     // AJAX request
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://cgqzqedj.p55.rt3.io/", true);
+    xhr.open("GET", "http://192.168.2.113:8080", true);
     xhr.send();
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
@@ -83,17 +105,22 @@ function getData(){
             if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
                 addDataToArray(sensorDataGyroX, data[0]);
                 addDataToArray(sensorDataGyroY, data[1]);
+                addDataToArray(accelerometerXangle, data[2]);
+                addDataToArray(accelerometerYangle, data[3]);
+                addDataToArray(accelerometerZangle, data[4]);
             } else {
                 refreshSensorDataArray(sensorDataGyroX, data[0]);
                 refreshSensorDataArray(sensorDataGyroY, data[1]);
+                refreshSensorDataArray(accelerometerXangle, data[2]);
+                refreshSensorDataArray(accelerometerYangle, data[3]);
             }
         }
     };
 }
 
 function updateChart() {
-    lowestYaxisValue = Math.min(data[0], data[1], Math.min(currentDataArray), 0);
-    highestYaxisValue = Math.max(data[0], data[1], Math.max(currentDataArray), 0);
+    lowestYaxisValue = Math.min(data[0], data[1], data[2], data[3], data[4], Math.min(currentDataArray), 0);
+    highestYaxisValue = Math.max(data[0], data[1], data[2], data[3], data[4], Math.max(currentDataArray), 0);
     sensorChart.update();
 }
 
