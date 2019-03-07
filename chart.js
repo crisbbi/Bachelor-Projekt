@@ -49,25 +49,25 @@ var sensorChart = new Chart(canvas, {
     datasets: [
         {
             label: "Gyro Sensor X",
-            borderColor: "rgba(81, 205, 184, 1)",
+            borderColor: "rgba(81, 205, 184, 0.2)",
             backgroundColor: "rgba(0,0,0,0)",
             data: sensorDataGyroX
         },
         {
             label: "Gyro Sensor Y",
-            borderColor: "rgba(127, 28, 16, 1)",
+            borderColor: "rgba(127, 28, 16, 0.2)",
             backgroundColor: "rgba(0,0,0,0)",
             data: sensorDataGyroY
         },
         {
             label: "Accelerometer X Angle",
-            borderColor: "rgba(7, 46, 166, 1)",
+            borderColor: "rgba(7, 46, 166, 0.2)",
             backgroundColor: "rgba(0,0,0,0)",
             data: accelerometerXangle
         },
         {
             label: "Accelerometer Y Angle",
-            borderColor: "rgba(175, 62, 233, 1)",
+            borderColor: "rgba(175, 62, 233, 0.2)",
             backgroundColor: "rgba(0,0,0,0)",
             data: accelerometerYangle
         },
