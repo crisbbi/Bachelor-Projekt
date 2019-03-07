@@ -22,11 +22,8 @@ var currentAccelXAngleMeasurement = 0;
 var currentAccelYAngleMeasurement = 0;
 
 // kalman filter variables
-var Q_angle = 0.1;
-var Q_gyro = 0.0015;
 var R_angle = 0.005;
 var y_bias = 0.0;
-var x_bias = 0.0;
 var XP_00 = 1.0;
 var XP_01 = 1.0;
 var XP_10 = 1.0;
@@ -163,12 +160,11 @@ function filterData() {
     XP_11 = Math.round(XP_11 * (interval / 1000));
     
     x = Math.round(currentAccelXAngleMeasurement - KFangleX);
-    S = Math.round(XP_00 + R_angle);
+    S = Math.round(XP_00);
     K_0 = Math.round(XP_00 / S);
     K_1 = Math.round(XP_10 / S);
     
     KFangleX = Math.round(KFangleX + (K_0 * x));
-    x_bias = Math.round(x_bias + (K_1 * x));
     
     XP_00 = Math.round(XP_00 - (K_0 * XP_00));
     XP_01 = Math.round(XP_01 - (K_0 * XP_01));
