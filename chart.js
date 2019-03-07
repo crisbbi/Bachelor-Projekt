@@ -182,6 +182,7 @@ function filterData() {
 }
 
 function updateChart() {
+    // set lowest and highest value for chart y axis border 
     lowestYaxisValue = Math.min(Math.min(sensorDataGyroX), Math.min(sensorDataGyroY), 
                         Math.min(accelerometerXangle), Math.min(accelerometerYangle), Math.min(kalmanFilteredXangleArray), 0);
     highestYaxisValue = Math.max(Math.max(sensorDataGyroX), Math.max(sensorDataGyroY), 
