@@ -13,10 +13,37 @@ var sensorDataGyroY = [];
 var accelerometerXangle = [];
 var accelerometerYangle = [];
 var accelerometerZangle = [];
+var kalmanFilteredXangleArray = [];
+var complementFilteredYangleArray = [];
+
+var currentGyroXAngleMeasurement = 0;
+var currentGyroYAngleMeasurement = 0;
+var currentAccelXAngleMeasurement = 0;
+var currentAccelYAngleMeasurement = 0;
+
+// kalman filter variables
+var Q_angle = 0.1;
+var Q_gyro = 0.0015;
+var R_angle = 0.005;
+var y_bias = 0.0;
+var x_bias = 0.0;
+var XP_00 = 1.0;
+var XP_01 = 1.0;
+var XP_10 = 1.0;
+var XP_11 = 1.0;
+var YP_00 = 1.0;
+var YP_01 = 1.0;
+var YP_10 = 1.0;
+var YP_11 = 1.0;
+var KFangleX = 0.0;
+var KFangleY = 0.0;
 
 // initial y axis range values, will change with incoming data
 var lowestYaxisValue = 0;
 var highestYaxisValue = 1;
+
+// loop interval 
+var interval = 70;
 
 var sensorChart = new Chart(canvas, {
     type: "line",
@@ -48,10 +75,10 @@ var sensorChart = new Chart(canvas, {
             data: accelerometerYangle
         },
         {
-            label: "Accelerometer Z Angle",
-            borderColor: "rgba(195, 112, 145, 1)",
+            label: "Kalman Filtered X Angle",
+            borderColor: "rgba(8, 144, 79, 1)",
             backgroundColor: "rgba(0,0,0,0)",
-            data: accelerometerZangle
+            data: kalmanFilteredXangleArray
         }
     ]
     },
@@ -99,34 +126,77 @@ function getData(){
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
             var data = xhr.responseText.split(",");
+            currentGyroXAngleMeasurement = Math.round(data[0]);
+            currentGyroYAngleMeasurement = Math.round(data[1]);
+            currentAccelXAngleMeasurement = Math.round(data[2]);
+            currentAccelYAngleMeasurement = Math.round(data[3]);
+
             // write normal text on webpage for debugging
             document.getElementById("title1").innerHTML = data[0];
             document.getElementById("title2").innerHTML = data[1];
+
             if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
-                addDataToArray(sensorDataGyroX, data[0]);
-                addDataToArray(sensorDataGyroY, data[1]);
-                addDataToArray(accelerometerXangle, data[2]);
-                addDataToArray(accelerometerYangle, data[3]);
-                addDataToArray(accelerometerZangle, data[4]);
+                addDataToArray(sensorDataGyroX, currentGyroXAngleMeasurement);
+                addDataToArray(sensorDataGyroY, currentGyroYAngleMeasurement);
+                addDataToArray(accelerometerXangle, currentAccelXAngleMeasurement);
+                addDataToArray(accelerometerYangle, currentAccelYAngleMeasurement);
             } else {
-                refreshSensorDataArray(sensorDataGyroX, data[0]);
-                refreshSensorDataArray(sensorDataGyroY, data[1]);
-                refreshSensorDataArray(accelerometerXangle, data[2]);
-                refreshSensorDataArray(accelerometerYangle, data[3]);
+                refreshSensorDataArray(sensorDataGyroX, currentGyroXAngleMeasurement);
+                refreshSensorDataArray(sensorDataGyroY, currentGyroYAngleMeasurement);
+                refreshSensorDataArray(accelerometerXangle, currentAccelXAngleMeasurement);
+                refreshSensorDataArray(accelerometerYangle, currentAccelYAngleMeasurement);
             }
         }
     };
 }
 
+function filterData() {
+    // kalman filter for x angle and y angle
+    x = 0.0;
+    S = 0.0;
+
+    KFangleX = Math.round(KFangleX + (interval / 1000) * (currentGyroXAngleMeasurement));
+    
+    XP_00 = Math.round(XP_00 + -(XP_10 + XP_01));
+    XP_01 = Math.round(XP_01 + -((interval / 1000) * XP_11));
+    XP_10 = Math.round(XP_10 + -((interval / 1000) * XP_11));
+    XP_11 = Math.round(XP_11 * (interval / 1000));
+    
+    x = Math.round(currentAccelXAngleMeasurement - KFangleX);
+    S = Math.round(XP_00 + R_angle);
+    K_0 = Math.round(XP_00 / S);
+    K_1 = Math.round(XP_10 / S);
+    
+    KFangleX = Math.round(KFangleX + (K_0 * x));
+    x_bias = Math.round(x_bias + (K_1 * x));
+    
+    XP_00 = Math.round(XP_00 - (K_0 * XP_00));
+    XP_01 = Math.round(XP_01 - (K_0 * XP_01));
+    XP_10 = Math.round(XP_10 - (K_1 * XP_00));
+    XP_11 = Math.round(XP_11 - (K_1 * XP_01));
+    
+    KFangleX = Math.round(KFangleX);
+
+    document.getElementById("title3").innerHTML = KFangleX.toString();
+    if (kalmanFilteredXangleArray.length <= maxAmountOfMeasurements) {
+        addDataToArray(kalmanFilteredXangleArray, KFangleX);
+    } else {
+        refreshSensorDataArray(kalmanFilteredXangleArray, KFangleX);
+    }
+}
+
 function updateChart() {
-    lowestYaxisValue = Math.min(data[0], data[1], data[2], data[3], data[4], Math.min(currentDataArray), 0);
-    highestYaxisValue = Math.max(data[0], data[1], data[2], data[3], data[4], Math.max(currentDataArray), 0);
+    lowestYaxisValue = Math.min(Math.min(sensorDataGyroX), Math.min(sensorDataGyroY), 
+                        Math.min(accelerometerXangle), Math.min(accelerometerYangle), Math.min(kalmanFilteredXangleArray), 0);
+    highestYaxisValue = Math.max(Math.max(sensorDataGyroX), Math.max(sensorDataGyroY), 
+                        Math.max(accelerometerXangle), Math.max(accelerometerYangle), Math.max(kalmanFilteredXangleArray), 0);
     sensorChart.update();
 }
 
 // refresh ajax call and chart update all X milliseconds
 setInterval(function() {
     getData();
+    filterData();
     updateChart();
     }, 
-    35);
+    interval);
