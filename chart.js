@@ -125,7 +125,7 @@ function addDataToArray(arrayToFill, newMeasurement) {
 function getData(){
     // AJAX request
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "https://jelebscy.p51.rt3.io/", true);
+    xhr.open("GET", "192.168.2.113:8080", true);
     xhr.send();
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
