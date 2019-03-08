@@ -14,6 +14,7 @@ var accelerometerXangle = [];
 var accelerometerYangle = [];
 var accelerometerZangle = [];
 var kalmanFilteredXangleArray = [];
+var kalmanFilteredYangleArray = [];
 var complementFilteredYangleArray = [];
 
 var currentGyroXAngleMeasurement = 0;
@@ -76,6 +77,12 @@ var sensorChart = new Chart(canvas, {
             borderColor: "rgba(8, 144, 79, 1)",
             backgroundColor: "rgba(0,0,0,0)",
             data: kalmanFilteredXangleArray
+        },
+        {
+            label: "Kalman Filtered Y Angle",
+            borderColor: "rgba(100, 80, 180, 1)",
+            backgroundColor: "rgba(0,0,0,0)",
+            data: kalmanFilteredYangleArray
         }
     ]
     },
@@ -118,7 +125,7 @@ function addDataToArray(arrayToFill, newMeasurement) {
 function getData(){
     // AJAX request
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "http://192.168.2.113:8080", true);
+    xhr.open("GET", "https://jelebscy.p51.rt3.io/", true);
     xhr.send();
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
@@ -149,17 +156,23 @@ function getData(){
 
 function filterData() {
     // kalman filter for x angle and y angle
+    kalmanFilterX(currentGyroXAngleMeasurement, currentAccelXAngleMeasurement, kalmanFilteredXangleArray);
+    kalmanFilterY(currentGyroYAngleMeasurement, currentAccelYAngleMeasurement, kalmanFilteredYangleArray);
+}
+
+function kalmanFilterX(currentGyroXValue, currentAccelXValue, kalmanXArray) {
+    // kalman filter for x angle 
     x = 0.0;
     S = 0.0;
-
-    KFangleX = Math.round(KFangleX + (interval / 1000) * (currentGyroXAngleMeasurement));
+    
+    KFangleX = Math.round(KFangleX + (interval / 1000) * (currentGyroXValue));
     
     XP_00 = Math.round(XP_00 + -(XP_10 + XP_01));
     XP_01 = Math.round(XP_01 + -((interval / 1000) * XP_11));
     XP_10 = Math.round(XP_10 + -((interval / 1000) * XP_11));
     XP_11 = Math.round(XP_11 * (interval / 1000));
     
-    x = Math.round(currentAccelXAngleMeasurement - KFangleX);
+    x = Math.round(currentAccelXValue - KFangleX);
     S = Math.round(XP_00);
     K_0 = Math.round(XP_00 / S);
     K_1 = Math.round(XP_10 / S);
@@ -172,12 +185,44 @@ function filterData() {
     XP_11 = Math.round(XP_11 - (K_1 * XP_01));
     
     KFangleX = Math.round(KFangleX);
-
-    document.getElementById("title3").innerHTML = KFangleX.toString();
-    if (kalmanFilteredXangleArray.length <= maxAmountOfMeasurements) {
-        addDataToArray(kalmanFilteredXangleArray, KFangleX);
+    
+    if (kalmanXArray.length <= maxAmountOfMeasurements) {
+        addDataToArray(kalmanXArray, KFangleX);
     } else {
-        refreshSensorDataArray(kalmanFilteredXangleArray, KFangleX);
+        refreshSensorDataArray(kalmanXArray, KFangleX);
+    }
+}
+
+function kalmanFilterY(currentGyroYValue, currentAccelYValue, kalmanYArray) {
+    // kalman filter for y angle 
+    y = 0.0;
+    S = 0.0;
+    
+    KFangleY = Math.round(KFangleY + (interval / 1000) * (currentGyroYValue));
+    
+    YP_00 = Math.round(YP_00 + -(YP_10 + YP_01));
+    YP_01 = Math.round(YP_01 + -((interval / 1000) * YP_11));
+    YP_10 = Math.round(YP_10 + -((interval / 1000) * YP_11));
+    YP_11 = Math.round(YP_11 * (interval / 1000));
+    
+    y = Math.round(currentAccelYValue - KFangleY);
+    S = Math.round(YP_00);
+    K_0 = Math.round(YP_00 / S);
+    K_1 = Math.round(YP_10 / S);
+    
+    KFangleY = Math.round(KFangleY + (K_0 * y));
+    
+    YP_00 = Math.round(YP_00 - (K_0 * YP_00));
+    YP_01 = Math.round(YP_01 - (K_0 * YP_01));
+    YP_10 = Math.round(YP_10 - (K_1 * YP_00));
+    YP_11 = Math.round(YP_11 - (K_1 * YP_01));
+    
+    KFangleY = Math.round(KFangleY);
+    
+    if (kalmanYArray.length <= maxAmountOfMeasurements) {
+        addDataToArray(kalmanYArray, KFangleY);
+    } else {
+        refreshSensorDataArray(kalmanYArray, KFangleY);
     }
 }
 
