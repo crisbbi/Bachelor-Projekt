@@ -41,7 +41,7 @@ var lowestYaxisValue = 0;
 var highestYaxisValue = 1;
 
 // loop interval 
-var interval = 70;
+var interval = 100;
 
 var sensorChart = new Chart(canvas, {
     type: "line",
@@ -125,7 +125,7 @@ function addDataToArray(arrayToFill, newMeasurement) {
 function getData(){
     // AJAX request
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "192.168.2.113:8080", true);
+    xhr.open("GET", "http://192.168.2.113:8080", true);
     xhr.send();
     xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
@@ -134,10 +134,6 @@ function getData(){
             currentGyroYAngleMeasurement = Math.round(data[1]);
             currentAccelXAngleMeasurement = Math.round(data[2]);
             currentAccelYAngleMeasurement = Math.round(data[3]);
-
-            // write normal text on webpage for debugging
-            document.getElementById("title1").innerHTML = data[0];
-            document.getElementById("title2").innerHTML = data[1];
 
             if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
                 addDataToArray(sensorDataGyroX, currentGyroXAngleMeasurement);
@@ -158,6 +154,9 @@ function filterData() {
     // kalman filter for x angle and y angle
     kalmanFilterX(currentGyroXAngleMeasurement, currentAccelXAngleMeasurement, kalmanFilteredXangleArray);
     kalmanFilterY(currentGyroYAngleMeasurement, currentAccelYAngleMeasurement, kalmanFilteredYangleArray);
+    // for debugging
+    document.getElementById("title1").innerHTML = KFangleX;
+    document.getElementById("title2").innerHTML = KFangleY;
 }
 
 function kalmanFilterX(currentGyroXValue, currentAccelXValue, kalmanXArray) {
