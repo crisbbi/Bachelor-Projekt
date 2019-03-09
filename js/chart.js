@@ -41,7 +41,7 @@ var lowestYaxisValue = 0;
 var highestYaxisValue = 1;
 
 // loop interval 
-var interval = 100;
+var interval = 50;
 
 var sensorChart = new Chart(canvas, {
     type: "line",
