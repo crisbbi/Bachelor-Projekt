@@ -2,7 +2,7 @@ var canvas = document.getElementById("chartCanvas");
 
 // set up labels for Chart object to use
 var labelArray = [];
-var maxAmountOfMeasurements = 40;
+var maxAmountOfMeasurements = 20;
 for (index = 1; index <= maxAmountOfMeasurements; index++) {
   labelArray.push("1");
 }
