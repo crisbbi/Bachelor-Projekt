@@ -150,10 +150,28 @@ function getData(){
     };
 }
 
+function median(arrayToFilter){
+    let tempArray = arrayToFilter.slice(arrayToFilter.length - 10, arrayToFilter.length);
+    tempArray.sort(function(a, b) {
+        return a - b;
+    });
+
+    if(tempArray.length ===0) { return 0; }
+
+    var half = Math.floor(tempArray.length / 2);
+
+    if (tempArray.length % 2) {
+        return tempArray[half];
+    }
+    else {
+        return (tempArray[half - 1] + tempArray[half]) / 2.0;
+    }
+}
+
 function filterData() {
     // kalman filter for x angle and y angle
-    kalmanFilterX(currentGyroXAngleMeasurement, currentAccelXAngleMeasurement, kalmanFilteredXangleArray);
-    kalmanFilterY(currentGyroYAngleMeasurement, currentAccelYAngleMeasurement, kalmanFilteredYangleArray);
+    kalmanFilterX(currentGyroXAngleMeasurement, median(accelerometerXangle), kalmanFilteredXangleArray);
+    kalmanFilterY(currentGyroYAngleMeasurement, median(accelerometerYangle), kalmanFilteredYangleArray);
     // for debugging
     document.getElementById("title1").innerHTML = KFangleX;
     document.getElementById("title2").innerHTML = KFangleY;
