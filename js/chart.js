@@ -16,11 +16,13 @@ var accelerometerZangle = [];
 var kalmanFilteredXangleArray = [];
 var kalmanFilteredYangleArray = [];
 var complementFilteredYangleArray = [];
+var headingArray = [];
 
 var currentGyroXAngleMeasurement = 0;
 var currentGyroYAngleMeasurement = 0;
 var currentAccelXAngleMeasurement = 0;
 var currentAccelYAngleMeasurement = 0;
+var currentMagZMeasurement = 0;
 
 // kalman filter variables
 var R_angle = 0.005;
@@ -35,6 +37,12 @@ var YP_10 = 1.0;
 var YP_11 = 1.0;
 var KFangleX = 0.0;
 var KFangleY = 0.0;
+
+// kalman filter compass variables
+var errorEstimate = 1;
+var errorMeasurement = 5;
+var estimatedCompassValue = 0;
+var kalmanGain = 0;
 
 // initial y axis range values, will change with incoming data
 var lowestYaxisValue = 0;
@@ -83,6 +91,12 @@ var sensorChart = new Chart(canvas, {
             borderColor: "rgba(100, 80, 180, 1)",
             backgroundColor: "rgba(0,0,0,0)",
             data: kalmanFilteredYangleArray
+        },
+        {
+            label: "Compass heading Kalman",
+            borderColor: "rgba(62, 250, 40, 1)",
+            backgroundColor: "rgba(0,0,0,0)",
+            data: headingArray
         }
     ]
     },
@@ -134,17 +148,20 @@ function getData(){
             currentGyroYAngleMeasurement = Math.round(data[1]);
             currentAccelXAngleMeasurement = Math.round(data[2]);
             currentAccelYAngleMeasurement = Math.round(data[3]);
+            currentMagZMeasurement = Math.round(data[4]);
 
             if (sensorDataGyroX.length <= maxAmountOfMeasurements) {
                 addDataToArray(sensorDataGyroX, currentGyroXAngleMeasurement);
                 addDataToArray(sensorDataGyroY, currentGyroYAngleMeasurement);
                 addDataToArray(accelerometerXangle, currentAccelXAngleMeasurement);
                 addDataToArray(accelerometerYangle, currentAccelYAngleMeasurement);
+                addDataToArray(headingArray, currentMagZMeasurement);
             } else {
                 refreshSensorDataArray(sensorDataGyroX, currentGyroXAngleMeasurement);
                 refreshSensorDataArray(sensorDataGyroY, currentGyroYAngleMeasurement);
                 refreshSensorDataArray(accelerometerXangle, currentAccelXAngleMeasurement);
                 refreshSensorDataArray(accelerometerYangle, currentAccelYAngleMeasurement);
+                refreshSensorDataArray(headingArray, currentMagZMeasurement);
             }
         }
     };
@@ -172,6 +189,9 @@ function filterData() {
     // kalman filter for x angle and y angle
     kalmanFilterX(currentGyroXAngleMeasurement, median(accelerometerXangle), kalmanFilteredXangleArray);
     kalmanFilterY(currentGyroYAngleMeasurement, median(accelerometerYangle), kalmanFilteredYangleArray);
+    if(headingArray.length > 0){
+        kalmanFilterZ(currentMagZMeasurement, headingArray);
+    }
     // for debugging
     document.getElementById("title1").innerHTML = KFangleX;
     document.getElementById("title2").innerHTML = KFangleY;
@@ -243,12 +263,24 @@ function kalmanFilterY(currentGyroYValue, currentAccelYValue, kalmanYArray) {
     }
 }
 
+function kalmanFilterZ(magZmeasurement, headingArray){
+    kalmanGain = (errorEstimate/(errorEstimate + errorMeasurement)).toFixed(2);
+    estimatedCompassValue = Math.round(headingArray[headingArray.length - 1] + kalmanGain * (magZmeasurement - headingArray[headingArray.length - 1]));
+    errorEstimate = ((1 - kalmanGain) * (errorEstimate)).toFixed(2); 
+
+    if(headingArray.length < 20){
+        headingArray.push(estimatedCompassValue);
+    }else{
+        refreshSensorDataArray(headingArray, estimatedCompassValue);
+    }
+}
+
 function updateChart() {
     // set lowest and highest value for chart y axis border 
     lowestYaxisValue = Math.min(Math.min(sensorDataGyroX), Math.min(sensorDataGyroY), 
-                        Math.min(accelerometerXangle), Math.min(accelerometerYangle), Math.min(kalmanFilteredXangleArray), 0);
+                        Math.min(accelerometerXangle), Math.min(accelerometerYangle), Math.min(kalmanFilteredXangleArray), Math.min(headingArray), 0);
     highestYaxisValue = Math.max(Math.max(sensorDataGyroX), Math.max(sensorDataGyroY), 
-                        Math.max(accelerometerXangle), Math.max(accelerometerYangle), Math.max(kalmanFilteredXangleArray), 0);
+                        Math.max(accelerometerXangle), Math.max(accelerometerYangle), Math.max(kalmanFilteredXangleArray), Math.max(headingArray), 0);
     sensorChart.update();
 }
 
