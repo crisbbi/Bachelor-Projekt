@@ -12,6 +12,7 @@ function draw(){
 	camera(300, -50, (height / 150) / tan(Math.PI / 6), 0, 0, 0, 0, 1, 0);
 	rotateX(KFangleX * (Math.PI / 180));
 	rotateZ(KFangleY * (Math.PI / 180));
+	rotateY(-(estimatedCompassValue * (Math.PI / 180)));
 	fill(50,50,50); // black
 	noStroke();
 	beginShape(); 
